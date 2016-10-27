@@ -1,0 +1,47 @@
+     PV = "${@bb.parse.BBHandler.vars_from_file(d.getVar('FILE'),d)[1] or '1.0'}"
+
+     DESCRIPTION = "Prints Hello World"
+     PN = 'printhello'
+     PV = '1'
+
+     python do_build() {
+        bb.plain("********************");
+        bb.plain("*                  *");
+        bb.plain("*  Hello, World!   *");
+        bb.plain("*                  *");
+        bb.plain("********************");
+     }
+        
+
+
+python () {
+	TA = d.getVar('TARGET_ARCH', True)
+	if TA == "arm":
+		javaPkg = "oracle-jse-ejre-arm-vfp-hflt-client-headless"
+	elif TA == "i586":
+		javaPkg = "oracle-jse-jre-i586"
+	elif TA == "x86_64":
+		javaPkg = "oracle-jse-jre-x86-64"
+	else:
+		raise Exception("Target architecture '%s' is not supported by the meta-oracle-java layer" %TA)
+	d.setVar('JAVA_PKG', javaPkg)
+}
+
+require ${JAVA_PKG}.inc
+
+
+def get_java_package(d):
+	TA = d.getVar('TARGET_ARCH', True)
+	if TA == "arm":
+		javaPkg = "oracle-jse-ejre-arm-vfp-hflt-client-headless"
+	elif TA == "i586":
+		javaPkg = "oracle-jse-jre-i586"
+	elif TA == "x86_64":
+		javaPkg = "oracle-jse-jre-x86-64"
+	else:
+		raise bb.parse.SkipPackage("Target architecture '%s' is not supported by the meta-oracle-java layer" % TA)
+	return javaPkg
+
+JAVA_PKG = "${@get_java_package(d)}"
+
+require ${JAVA_PKG}.inc
